@@ -1,4 +1,116 @@
-### [H-1] Storing the password on-chain makes it visible to anyone, and no longer private.
+---
+title: Protocol Audit Report
+author: Duc Nghia Pham
+date: February 26, 2024
+header-includes:
+  - \usepackage{titling}
+  - \usepackage{graphicx}
+---
+
+\begin{titlepage}
+\centering
+\begin{figure}[h]
+\centering
+\includegraphics[width=0.5\textwidth]{logo.pdf}
+\end{figure}
+\vspace*{2cm}
+{\Huge\bfseries Protocol Audit Report\par}
+\vspace{1cm}
+{\Large Version 1.0\par}
+\vspace{2cm}
+{\Large\itshape Duc Nghia Pham\par}
+\vfill
+{\large \today\par}
+\end{titlepage}
+
+\maketitle
+
+<!-- Your report starts here! -->
+
+Prepared by: [Duc Nghia Pham]()
+
+Lead Security Researcher:
+
+- Duc Nghia Pham
+
+# Table of Contents
+
+- [Table of Contents](#table-of-contents)
+- [Protocol Summary](#protocol-summary)
+- [Disclaimer](#disclaimer)
+- [Risk Classification](#risk-classification)
+- [Audit Details](#audit-details)
+  - [Scope](#scope)
+  - [Roles](#roles)
+- [Executive Summary](#executive-summary)
+  - [Issues found](#issues-found)
+- [Findings](#findings)
+  - [High](#high)
+    - [\[H-1\] Storing the password on-chain makes it visible to anyone, and no longer private](#h-1-storing-the-password-on-chain-makes-it-visible-to-anyone-and-no-longer-private)
+    - [\[H-2\] `PasswordStore::setPassword` has no access controls, meaning a non-owner could change the password](#h-2-passwordstoresetpassword-has-no-access-controls-meaning-a-non-owner-could-change-the-password)
+  - [Informational](#informational)
+    - [\[I-1\] `PasswordStore::getPassword` natspec indicates a parameter that doesn't exist, causing the natspec to be incorrect](#i-1-passwordstoregetpassword-natspec-indicates-a-parameter-that-doesnt-exist-causing-the-natspec-to-be-incorrect)
+
+# Protocol Summary
+
+PasswordStore is a protocol dedicated to storage and retrieval of a user's passwords. The protocol is designed to be used by a single user, and is not designed to be used by multiple users. Only the owner should be able to set and access this password.
+
+# Disclaimer
+
+I (Duc Nghia Pham) make all effort to find as many vulnerabilities in the code in the given time period, but holds no responsibilities for the findings provided in this document. A security audit by me is not an endorsement of the underlying business or product. The audit was time-boxed and the review of the code was solely on the security aspects of the Solidity implementation of the contracts.
+
+# Risk Classification
+
+|            |        | Impact |        |     |
+| ---------- | ------ | ------ | ------ | --- |
+|            |        | High   | Medium | Low |
+|            | High   | H      | H/M    | M   |
+| Likelihood | Medium | H/M    | M      | M/L |
+|            | Low    | M      | M/L    | L   |
+
+We use the [CodeHawks](https://docs.codehawks.com/hawks-auditors/how-to-evaluate-a-finding-severity) severity matrix to determine severity. See the documentation for more details.
+
+# Audit Details
+
+Commit Hash:
+
+**The findings described in this document correspond the following commit hash:**
+
+```
+2e8f81e263b3a9d18fab4fb5c46805ffc10a9990
+```
+
+## Scope
+
+```
+./src/
+#-- PasswordStore.sol
+```
+
+## Roles
+
+- Owner: The user who can set the password and read the password.
+- Outsiders: No one else should be able to set or read the password.
+
+# Executive Summary
+
+\*I spend 5 hours using 3 tools: Forge, cloc, solidity metrics
+
+## Issues found
+
+| Severity | Number of issues found |
+| -------- | ---------------------- |
+| Hight    | 2                      |
+| Medium   | 0                      |
+| Low      | 0                      |
+| Info     | 1                      |
+| Total    | 3                      |
+
+# Findings
+
+## High
+
+### [H-1] Storing the password on-chain makes it visible to anyone, and no longer private
 
 **Description:**  All data stored on-chain is visible to anyone, and can be read directly from the blockchain. The `PasswordStore::s_password` varibale is intended to be a private variable and only accessed through the `PasswordStore::getPassword` function, which is intended to be only called by the owner of the contract.
 
@@ -87,6 +199,7 @@ myPassword
     }
 ```
 
+## Informational
 
 ### [I-1] `PasswordStore::getPassword` natspec indicates a parameter that doesn't exist, causing the natspec to be incorrect
 
@@ -108,12 +221,4 @@ The `PasswordStore::getPassword` function signature is `getPassword()` which con
 
 ```diff
 -   * @param newPassword The new password to set.
-```
-
-```markdown
-Changes made:
-1. Added `solidity` as the code block language for syntax highlighting.
-2. Clarified the contradiction between the function signature and the natspec.
-3. Maintained consistency in markdown formatting and code snippet presentation.
-4. Updated the recommended mitigation to clarify the action required.
 ```
